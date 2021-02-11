@@ -1,28 +1,119 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app" class="container p-4">
+    <div class="card shadow p-3 mb-5 bg-white rounded border-0">
+      <h1 class="text-center mt-4 fw-bold">Tabel Data</h1>
+      <data-form @add:table="addTable" class="mt-4" />
+      <know-table
+        :tables="tables"
+        class="mt-5"
+        @delete:table="deleteTable"
+        @edit:table="editTable"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import KnowTable from "./components/KnowTable";
+import DataForm from "./components/DataForm";
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+import "@fortawesome/fontawesome-free/css/all.css";
+import "@fortawesome/fontawesome-free/js/all.js";
 
 export default {
-  name: 'App',
+  name: "app",
   components: {
-    HelloWorld
-  }
-}
+    KnowTable,
+    DataForm,
+  },
+  data() {
+    return {
+      tables: [],
+    };
+  },
+  created() {
+    const tableDb = JSON.parse(localStorage.getItem("tables"));
+    if (tableDb == null) {
+      this.tables = [];
+    } else {
+      this.tables = tableDb;
+    }
+  },
+  // mounted() {
+  //   this.getTables();
+  // },
+  methods: {
+    // async getTables() {
+    //   try {
+    //     const response = await fetch(
+    //       "https://jsonplaceholder.typicode.com/users"
+    //     );
+    //     const data = await response.json();
+    //     this.tables = data;
+    //     localStorage.setItem("tables", JSON.stringify(this.tables));
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
+    // },
+
+    async addTable(table) {
+      try {
+        const response = await fetch(
+          "https://jsonplaceholder.typicode.com/users",
+          {
+            method: "POST",
+            body: JSON.stringify(table),
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+          }
+        );
+        const data = await response.json();
+        this.tables = [...this.tables, data];
+        localStorage.setItem("tables", JSON.stringify(this.tables));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async deleteTable(id) {
+      try {
+        await fetch(`https://jsonplaceholder.typicode.com/users/${id}`, {
+          method: "DELETE",
+        });
+        this.tables = this.tables.filter((table) => table.id !== id);
+        localStorage.setItem("tables", JSON.stringify(this.tables));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+
+    async editTable(id, updateTable) {
+      try {
+        const response = await fetch(
+          `https://jsonplaceholder.typicode.com/users/${id}`,
+          {
+            method: "PUT",
+            body: JSON.stringify(updateTable),
+            headers: { "Content-type": "application/json; charset=UTF-8" },
+          }
+        );
+        localStorage.setItem("tables", JSON.stringify(this.tables));
+        const tableDb = JSON.parse(localStorage.getItem("tables"));
+        this.tables = tableDb;
+        const data = await response.json();
+        this.tables = this.tables.map((table) =>
+          table.id === id ? data : table
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    },
+  },
+};
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+@import url("https://fonts.googleapis.com/css2?family=Poppins&display=swap");
+body {
+  font-family: "Poppins", sans-serif;
 }
 </style>
