@@ -31,30 +31,21 @@ export default {
       tables: [],
     };
   },
-  created() {
-    const tableDb = JSON.parse(localStorage.getItem("tables"));
-    if (tableDb == null) {
-      this.tables = [];
-    } else {
-      this.tables = tableDb;
-    }
-  },
-  // mounted() {
-  //   this.getTables();
-  // },
+   mounted() {
+     this.getTables();
+   },
   methods: {
-    // async getTables() {
-    //   try {
-    //     const response = await fetch(
-    //       "https://jsonplaceholder.typicode.com/users"
-    //     );
-    //     const data = await response.json();
-    //     this.tables = data;
-    //     localStorage.setItem("tables", JSON.stringify(this.tables));
-    //   } catch (error) {
-    //     console.error(error);
-    //   }
-    // },
+     async getTables() {
+       try {
+         const response = await fetch(
+           "https://jsonplaceholder.typicode.com/users"
+         );
+         const data = await response.json();
+         this.tables = data;
+       } catch (error) {
+         console.error(error);
+      }
+     },
 
     async addTable(table) {
       try {
@@ -68,7 +59,6 @@ export default {
         );
         const data = await response.json();
         this.tables = [...this.tables, data];
-        localStorage.setItem("tables", JSON.stringify(this.tables));
       } catch (error) {
         console.error(error);
       }
@@ -80,7 +70,6 @@ export default {
           method: "DELETE",
         });
         this.tables = this.tables.filter((table) => table.id !== id);
-        localStorage.setItem("tables", JSON.stringify(this.tables));
       } catch (error) {
         console.error(error);
       }
@@ -96,9 +85,6 @@ export default {
             headers: { "Content-type": "application/json; charset=UTF-8" },
           }
         );
-        localStorage.setItem("tables", JSON.stringify(this.tables));
-        const tableDb = JSON.parse(localStorage.getItem("tables"));
-        this.tables = tableDb;
         const data = await response.json();
         this.tables = this.tables.map((table) =>
           table.id === id ? data : table
